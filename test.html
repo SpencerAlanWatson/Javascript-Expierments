@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Node</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/default.css">
+</head>
+
+<body>
+    <div class="page-heading">
+        <h3>Test Node Page</h3>
+    </div>
+    <div id="Data" class="container-fluid">
+        <button onclick="RandomizeGitHub()">Randomize GitHub!</button>
+        <video id="video" autoplay></video>
+        <audio id="audio" controls>
+            <source src="/audio/test.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+        </audio>
+        <canvas id="canvas" width="1000" height="1000">
+            <p>Your browser doesn't support canvas!</p>
+        </canvas>
+    </div>
+
+    <div class="container-fluid">
+        <div id="Desc" class="row">
+
+        </div>
+    </div>
+    <!--Javascript-->
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/socket.io.js"></script>
+    <script src="/js/lib/underscore.js"></script>
+    <script src="/js/lib/lz-string.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script>
+        google.load('visualization', '1', {packages:['corechart']});
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        var context = new AudioContext();
+        
+        var Data;
+        var DataS;  
+        var c;
+        var ctx;
+        var canvasImage;
+        $(document).ready(function(){
+            c = document.getElementById("canvas");
+            ctx = c.getContext("2d");
+            console.log(ctx.getImageData(0,0, c.height, c.width));
+            var my_gradient = ctx.createLinearGradient(0, 0, 500, 500);
+            
+            my_gradient.addColorStop(0, "orange");
+            my_gradient.addColorStop(1, "black");
+            
+            ctx.fillStyle = my_gradient;
+            ctx.font = "bold 25px serif";
+            
+            //ctx.fillText("x", 248, 43);
+            ctx.fillText("Hello, I have a friend.  Are you my friend?", 5, 100); 
+            canvasImage = new Image();
+            canvasImage.src = "/img/max.jpg";
+            canvasImage.onload = RandomizeGitHub();
+            //loadDogSound("/audio/test.mp3
+        });
+        function RandomizeGitHub(){
+                ctx.drawImage(canvasImage, 0,0);
+                var iD = ctx.getImageData(0,0,200,54);
+                var idata = iD.data;
+                for(i = 0; i < idata.length; i++){
+                    /*var red = 255 - idata[i];
+                    var blue = 255 - idata[i+1];
+                    var green = 255 - idata[i+2];
+                    var alpha = idata[i+3];
+                    
+                    idata[i] = red;
+                    idata[i+1] = blue;
+                    idata[i+2] = green;
+                    idata[i+3] = alpha;*/
+                    var p = i + 1;
+                    if(p % 4 == 0)continue;
+                    var old = idata[i];
+                    var rand = Math.floor(Math.random()*(idata.length-1));
+                    idata[i] = idata[rand];
+                    idata[rand] = old;
+                    
+                }
+                ctx.putImageData(iD, 0,0);
+            }
+        function loadDogSound(url) {
+  var request = new XMLHttpRequest();
+  request.open('GET', url, true);
+  request.responseType = 'arraybuffer';
+    
+  // Decode asynchronously
+  request.onload = function() {
+      DataS = request.response;
+    context.decodeAudioData(request.response, function(buffer) {
+      Data = buffer;
+/*        c.addEventListener("mousemove", function(event)
+{
+  var x = event.x;
+  var y = event.y;
+
+  x -= c.offsetLeft;
+  y -= c.offsetTop;*/
+    var idata = ctx.getImageData(0,0, c.width, c.height);
+    var cd = Data.getChannelData(0);
+    console.log(cd);
+    for(var i = 0; i < idata.data.length; i++){
+        var p = i+1;
+        if(p % 4 == 0){
+            idata.data[i] = 255;
+            continue;
+        }
+        idata.data[i] = Math.abs(cd[i + 1000000]) * 255;
+        //if(
+        /*
+        if(p % 4 == 1){
+            if(idata.data[i] == 255){
+                idata.data[i] = 0;   
+            }else{
+                idata.data[i] = 255;
+            }
+        }else if (p % 4 == 0){
+                        if(idata.data[i] == 255){
+                idata.data[i] = 0;   
+            }else{
+                idata.data[i] = 255;
+            }  
+        }else{
+            idata.data[i] = 0;   
+        }*/
+        
+    }
+    ctx.putImageData(idata, 0, 0);
+  console.log(idata);
+//}, false);
+    }, function(){});
+  }
+  request.send();
+}
+    </script>
+        
+</body>
+
+</html>

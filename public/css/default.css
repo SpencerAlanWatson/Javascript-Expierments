@@ -1,0 +1,156 @@
+#canvas{
+    border: 5px solid;
+}
+.uIUL{
+  width: 95%;
+  height: 40px;
+  border: solid;
+  border-width: 3px;
+  border-radius: 25px;
+  background-color: lightblue;
+}
+.uIULUsername{
+  font-size:16px;
+}
+h1, text {
+  font-size: 72px;
+  background-color:  orangered;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.KDA{
+    text-align: center;
+    font-size: 3.5em;
+    width:auto;
+    max-width: 200px;
+    max-height: 65px;
+    border-radius: 5px;
+    
+    margin:5px 10px;
+    padding:0 5px;
+}
+#Data{
+    max-width: 75%;
+    margin: auto;
+}
+#Items{
+
+    height: 72px;
+    max-width: 486px;
+}
+#Items, #Player{
+    background-image: radial-gradient(black, #666);
+    border-radius: 10px;
+    border-style:solid;
+    border-width: 1px;
+    margin:10px;
+    color:white;
+}
+#Player h1{
+    text-align: center;
+}
+.ChampionIcon{
+    display:inline-block;
+    margin-top:1px;
+    margin-right: 5px;
+    background-origin: content-box
+}
+.Icon{
+    height: 48px;
+    width: 48px;
+    background-repeat: no-repeat;
+}
+.icon-item{
+    float:right;
+    margin: 12px 10px;
+    border-style:inset;
+    border-radius: 5px;
+    border-width: 2px;
+}
+.icon-item:nth-of-type(1){
+    clear:left;
+}
+.i-item0{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/item0.png');
+}
+.i-item1{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/item1.png');
+}
+.i-item2{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/item2.png');
+}
+.i-item3{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/item3.png');
+}
+
+.i-champion0{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/champion0.png');
+}
+.i-champion1{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/champion1.png');
+}
+.i-champion2{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/champion2.png');
+}
+.i-champion3{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/champion3.png');
+}
+.i-champion4{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/champion4.png');
+}
+
+.i-spell0{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell0.png');
+}
+.i-spell1{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell1.png');
+}
+.i-spell2{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell2.png');
+}
+.i-spell3{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell3.png');
+}
+.i-spell4{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell4.png');
+}
+.i-spell5{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell5.png');
+}
+.i-spell6{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell6.png');
+}
+.i-spell7{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell7.png');
+}
+.i-spell8{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell8.png');
+}
+.i-spell9{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell9.png');
+}
+.i-spell10{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell10.png');
+}
+.i-spell11{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell11.png');
+}
+.i-spell12{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/spell12.png');
+}
+
+.i-passive0{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/passive0.png');
+}
+.i-passive1{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/passive1.png');
+}
+.i-passive2{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/passive2.png');
+}
+.i-passive3{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/passive3.png');
+}
+.i-passive4{
+    background-image: url('//ddragon.leagueoflegends.com/cdn/4.2.6/img/sprite/passive4.png');
+}

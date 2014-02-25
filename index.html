@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Node</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/default.css">
+
+    <style>
+        fh{
+         max-height:400px;   
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-heading">
+        <h3>Test Node Page</h3>
+    </div>
+    <!--<form id="info" action="#">-->
+        <input type="text" name="summoner" id="SummonerName" value="robothepichu">
+        <input type="submit" name="submit" value="submit" onclick="SUbmit()">
+   <!-- </form>-->
+    <div id="Data" class="container-fluid">
+        <div id="Player" class="row">
+            <div id="PlayerInfo" class="col-md-6">
+            
+            </div>
+            <div id="PlayerStats" class="col-md-6">
+                
+            </div>
+        </div>
+        <div id="Items" class="center-block">
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div id="Desc" class="row">
+
+        </div>
+    </div>
+    <!--Javascript-->
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/socket.io.js"></script>
+    <script src="/js/lib/underscore.js"></script>
+    <script src="/js/lib/lz-string.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script>
+        google.load('visualization', '1', {packages:['corechart']});
+        var Data;
+        var DataS;
+        $(document).ready(function(){
+
+        });
+        
+        function SUbmit(){
+            var name = $("#SummonerName").val();
+            $("#PlayerInfo").empty();
+            $("#PlayerStats").empty();
+            $("#Items").empty();
+            
+            $.get("/RiotAPI/GameComparision/?name="+name, function(data){
+                Data = data;
+                var pData = Data.player;
+                var cData = pData.champion;
+                
+                var gData = Data.game;
+                var sData = gData.stats;
+                
+                var pHeader = $("<h1 id='PlayerName'>").appendTo("#PlayerInfo");
+                pHeader.text(pData.name);
+                var champPlayed = $("<h3 class='ChampionPlayed'>").appendTo("#PlayerInfo");
+                champPlayed.text('Played: ');
+                
+                var champIcon = $("<div class='ChampionIcon'>").appendTo(champPlayed);
+
+                var champName = $("<span class='ChampionName'>").appendTo(champPlayed);
+                champName.text(cData.name);
+                setIcon(champIcon, cData.image);
+                
+                var KDADiv = $("<div class='KDA bg-primary'>").appendTo("#PlayerInfo");
+                
+                var KillsText = "<span class='Kills text-success' data-toggle='tooltip'>"+sData.championsKilled+"</span>";
+                var DeathsText = "<span class='Deaths text-danger' data-toggle='tooltip'>"+sData.numDeaths+"</span>";
+                var AssistsText = "<span class='Assists text-info' data-toggle='tooltip'>"+sData.assists+"</span>";
+                
+                KDADiv.html(KillsText + '/' + DeathsText + '/' + AssistsText);
+                var DamageToDeathsRatio = sData.totalDamageDealt/sData.numDeaths;
+                var DamageToGoldSpent = " "+sData.totalDamageDealt/sData.goldSpent;
+                var DamageTakenToGoldSpent = " "+sData.totalDamageTaken/sData.goldSpent;
+                
+                $("<div class='Info'>").appendTo("#PlayerInfo").text(DamageToDeathsRatio + DamageToGoldSpent + DamageTakenToGoldSpent);
+                
+                var csData = cData.stats;
+                var StatTable = $("<table class='table'>").appendTo("#PlayerStats");
+                
+                //var StatTableHeader = $("<thead>").appendTo(StatTable);
+                //var StatTableHeaderRow = $("<tr>").appendTo(StatTableHeader);
+                
+                var StatTableBody = $("<tbody>").appendTo(StatTable);
+                _.each(csData, function(value, key, list){
+                    if(key.indexOf('perlevel') == -1){
+                        var Row = $("<tr>").appendTo(StatTableBody);
+                        Row.append("<th>"+key+"</th>");
+                        Row.append("<td>"+value+"</td>");
+                    }
+                });
+                
+                
+                var items = data.player.items;
+                for(var i = 0; i < items.length; ++i){
+                    var item = items[i];
+                    var div = $("<div>").prependTo("#Items");
+                    var img;
+                    if(item){
+                        img = item.image;
+                    }else{
+                        img = null;   
+                    }
+                    
+                    setIcon(div, img);
+                }
+                
+
+                //parseData(Data);
+            });
+        }
+        function setIcon(Obj, img){
+            if(img){
+                
+                Obj.addClass('Icon icon-'+img.group+' i-'+img.sprite.replace('.png', ''));
+                Obj.css('background-position', '-'+img.x + 'px -'+img.y+'px');
+            }else{
+                Obj.addClass('Icon i-item2 icon-item');
+                Obj.css('background-position', '-432px -48px');
+            }
+        }
+    </script>
+        
+</body>
+
+</html>

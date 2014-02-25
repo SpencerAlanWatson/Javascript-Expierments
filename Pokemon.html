@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pokemon</title>
+</head>
+
+<body>
+
+
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/socket.io.js"></script>
+    <script src="/js/lib/underscore.js"></script>
+    <script src="/js/lib/lz-string.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script src="/js/chance.js"></script>
+    <script src="/js/utilities.js"></script>
+    <script src="/js/Canvas.js"></script>
+    <script>
+        var tileX = 50,
+            tileY = 50,
+            tileSperation = 10,
+            tileSizeX = 10,
+            tileSizeY = 10,
+            FPS = 60,
+            Tiles = [],
+            renderID;
+            
+            
+        $(document).ready(function(){
+            for(var x = 0; x < tileX; x++){
+                for(var y = 0; y < tileY; y++){
+                    var Pos = new Vec2(x*tileSizeX, y*tileSizeY);
+                    //var Size = new Vec2(tileSizeX, tileSizeY);
+                    var tile = new Tile(Pos);
+                    Tiles.push(tile);
+                }
+            }
+            //renderID = setInterval(cManager.Render, 1000/FPS);
+            
+        });
+    </script>
+</body>
+
+</html>

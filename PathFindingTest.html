@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Node</title>
+    <!--<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">-->
+    <!--<link rel="stylesheet" type="text/css" href="/css/default.css">-->
+</head>
+
+<body style="background-color:#eee;">
+    <h1 id="TimeTaken">NA</h1>
+    <input type="text" id="sx">
+    <input type="text" id="sy">
+    <input type="text" id="ex">
+    <input type="text" id="ey">
+    <button id="submit">Sumbit</button>
+    <canvas id="canvas" height="1000" width="1000">
+        <p>Sorry</p>
+    </canvas>
+
+    <!--Javascript-->
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/underscore.js"></script>
+    <script src="/js/lib/socket.io.js"></script>
+    <!--<script src="/js/lib/lz-string.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+        <script src="https://www.google.com/jsapi"></script>-->
+    <script>
+        //google.load('visualization', '1', {packages:['corechart']});
+            var Data;
+            var DataS;
+            var Nodes = [];
+            var c;
+            var ctx;
+            var neighbors = [[0,1], [1, 0], [0, -1], [-1, 0]];
+            var socket;
+            var nodeRadius = 2;
+            
+            var lineColor = "black";
+            var normColor = "black";
+            var openColor = "blue";
+            var closedColor = "red";
+            var endsColor = "green";
+            var obstacleColor = "purple";
+            
+            $(document).ready(function(){
+                c = document.getElementById("canvas");
+                ctx = c.getContext("2d");
+                socket = io.connect('http://76.84.167.144');
+                socket.on("Initiate", function(data, fn){
+                    _.each(data, function(element, index, list){
+                        var px = element.px;
+                        var py = element.py;
+                        ctx.beginPath();
+                        if(!element.closed){
+                            ctx.fillStyle = normColor;
+                            ctx.strokeStyle = normColor;
+                        }else{
+                            ctx.fillStyle = obstacleColor;
+                            ctx.strokeStyle = obstacleColor;
+                        }
+                        
+                        ctx.arc(px, py, nodeRadius, 0, 2 * Math.PI, false);
+                        ctx.fill();
+                    });
+                    
+                    $("#submit").click(function(e){
+                        fn({
+                            start: {x: parseInt($("#sx").val()), y: parseInt($("#sy").val())},
+                            end: {x: parseInt($("#ex").val()), y: parseInt($("#ey").val())}
+                        });
+                    });
+                });
+                socket.on("drawLine", function(data){
+                    ctx.beginPath();
+                    ctx.fillStyle = lineColor;
+                    ctx.strokeStyle = lineColor;
+                    
+                    ctx.moveTo(data.start[0], data.start[1]);
+                    ctx.lineTo(data.end[0], data.end[1]);
+                    ctx.stroke();
+                });
+                
+                socket.on("addOpenNode", function(data){
+                    var px = data.px;
+                    var py = data.py;
+                    
+                    ctx.beginPath();
+                    ctx.arc(px, py, nodeRadius, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = openColor;
+                    ctx.fill();
+                });
+                
+                socket.on("addClosedNode", function(data){
+                    var px = data.px;
+                    var py = data.py;
+                    
+                    ctx.beginPath();
+                    ctx.arc(px, py, nodeRadius, 0, 2 * Math.PI, false);
+                    ctx.fillStyle = closedColor;
+                    ctx.fill();
+                });
+                
+                socket.on("drawEnds", function(data){
+                    var start = data.start;
+                    var end = data.end;
+                    
+                    ctx.beginPath();
+                    ctx.fillStyle = endsColor;
+                    
+                    ctx.arc(start.px, start.py, nodeRadius, 0, 2 * Math.PI, false);
+                    ctx.arc(end.px, end.py, nodeRadius, 0, 2 * Math.PI, false);
+
+                    ctx.fill();
+                });
+                socket.on("Finish", function(data){
+                    socket.disconnect();
+                });
+                socket.on("TimeTaken", function(data){
+                    $("#TimeTaken").text(data.td); 
+                });
+                /*for(var i = 0; i < 100; i++){
+                    Nodes[i] = [];
+                    for(var i2 = 0; i2 < 100; i2++){
+                        Nodes[i][i2] = new Node(i, i2, i*10, i2*10);
+                    }
+                }
+                //drawNodes();
+                console.log(Nodes[0][0], Nodes[99][99]);
+                FindPath(Nodes[0][0], Nodes[99][99]);*/
+            });
+            /*function drawNodes(){
+                _.each(Nodes, function(element, value, list){
+                    _.each(element, function(e, v, l){
+                        ctx.beginPath();
+                        ctx.arc(e.px, e.py, 2, 0, 2 * Math.PI, false);
+                        ctx.fillStyle = 'black';
+                        ctx.fill(); 
+                    });
+
+                });
+            }
+            function Node(x, y, px, py){
+                var self = this;
+                self.x = x;
+                self.y = y;
+                self.px = px;
+                self.py = py;
+                self.fScore = 0;
+                self.gScore = 0;
+                self.parent = null;
+            }
+            
+            function FindPath(start, end){
+                start.fScore = heuristicCostEstimate(start, end);
+                var open = [start];
+
+                var closed = [];
+                while(!_.isEmpty(open)){
+                    var current = _.min(open, function(node){
+                        return node.fScore;
+                    });
+                    if(current == end){
+                        _.defer(constructPath(end, end.parent));
+                        return;
+                    }
+                    
+                    open.splice(open.indexOf(current), 1);
+                    closed.push(current);
+                    for(var i = 0; i < 4; i++){
+                        var neighborPos = neighbors[i];
+                        var nx = current.x + neighborPos[0];
+                        var ny = current.y + neighborPos[1];
+                        if( (nx < 0 || ny  < 0) && (nx >= 100 || ny >= 100)){
+                            continue;
+                        }
+                        if(!Nodes[nx])continue;
+                        var neighbor = Nodes[nx][ny];
+                        if(!neighbor)continue;
+                        
+                        if(_.contains(closed, neighbor))continue;
+                        
+                        var tentGScore = current.gScore + dFormula(current, neighbor);
+                        var isInOpen = _.contains(open, neighbor);
+                        
+                        if(!isInOpen || (neighbor.gScore != 0 && tentGScore < neighbor.gScore)){
+                            neighbor.parent = current;
+                            neighbor.gScore = tentGScore;
+                            neighbor.fScore = tentGScore + heuristicCostEstimate(neighbor, end);
+                            if(!isInOpen){
+                                open.push(neighbor);   
+                            }
+                        }
+                    }
+                }
+            }
+            
+            function heuristicCostEstimate(start, end){
+                return dFormula(start,end);
+            }
+            function dFormula(start, end){
+                console.log(start, end);
+                var xdelta = end.x - start.x;
+                var ydelta = end.y - start.y;
+                
+                var xdsqr = Math.pow(xdelta, 2);
+                var ydsqr = Math.pow(ydelta, 2);
+                        
+                var xysum = xdsqr + ydsqr;
+                
+                return Math.sqrt(xysum);   
+            }
+            function constructPath(start, end){
+                ctx.beginPath();
+                ctx.moveTo(start.px, start.py);
+                ctx.lineTo(end.px, end.py);
+                ctx.stroke();
+                if(end.parent){
+                    _.defer(constructPath, end, end.parent);   
+                }
+            }*/
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,40 @@
+{
+  "name": "Mock-Equestrian-Wars",
+  "version": "1.0.0",
+  "description": "Mock Equestrian Wars Browser Game",
+  "author": {
+    "name": "Suddenly Entertainment!",
+    "email": "contact@equestrianwars.com",
+    "url":  "http://www.equestrianwars.com/"
+  },
+  "homepage": "http://www.equestrianwars.com/",
+  "repository": {
+    "type": "git",
+    "url": "https://gitub.com/ryex/mewars"
+  },
+
+  "engines": {
+    "node": ">= 0.10.18",
+    "npm": ">= 1.0.0"
+  },
+
+  "dependencies": {
+    "express": "3.x",
+    "bcrypt-nodejs": "0.0.x",
+    "socket.io": "0.9.x",
+    "mysql": "*",
+    "sequelize": "2.x.x",
+    "mime": "1.2.x",
+    "async": "0.2.x",
+    "png-js": "0.1.x",
+    "request":"2.x.x",
+    "node-async":"x",
+    "underscore":"1.6.x"
+  },
+
+  "devDependencies": {},
+  "bundleDependencies": [],
+
+  "private": true,
+  "main": "server.js"
+}

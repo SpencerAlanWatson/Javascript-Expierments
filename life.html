@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Node</title>
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/default.css">
+
+    <style>
+        fh{
+         max-height:400px;   
+        }
+    </style>
+</head>
+
+<body>
+    <div class="page-heading">
+        <h3>
+            <a class="brand" href="http://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Conway's Game of Life</a>
+            <span id="StepCount">0</span>
+            <span id="TileChanges">0</span>
+        </h3>
+    </div>
+    <div class="form" style="max-width:500px;">
+        <button class="btn btn-success" name="start" id="start" value="start">Start</button>
+        <button class="btn btn-danger" name="stop" id="stop" value="stop">Stop</button>
+        <button class="btn btn-info" name="Rand" id="Rand" value="Rand">Randomize</button>
+        <button class="btn btn-primary" name="Reset" id="Reset" value="Reset">Reset</button>
+        <input type="range" id="delay" name="delay" min="0" max="1000" step="10" value="500" />
+    </div>
+    <canvas id="canvas" height="500" width="500">
+        <p>Sorry, your browser doesn't support Canvas, try
+            <a href="https://www.google.com/intl/en/chrome/browser/">Google Chrome</a>.</p>
+    </canvas>
+
+    <!--Javascript-->
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/socket.io.js"></script>
+    <script src="/js/lib/underscore.js"></script>
+    <script src="/js/lib/lz-string.js"></script>
+    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+    <script src="https://www.google.com/jsapi"></script>
+    <script src="/js/chance.js"></script>
+    <script src="/js/utilities.js"></script>
+    <script>
+        //'use strict';
+        
+        /*google.load('visualization', '1', {packages:['corechart']});
+        var Data;
+        var DataS;*/
+        var running = false,
+            cObjs = [],
+            Tiles = [],
+            aliveTiles = [],
+            ChangedObjs = [],
+            socket,
+            TileChanges = 0,
+            delay = 500; //In ms
+        
+        var tileX = 50,
+            tileY = 50;
+        //var backBuffer = document.createElement('canvas');
+        //backBuffer.setAttribute('height', 500);
+        //backBuffer.setAttribute('width', 500);
+        var bC = document.createElement('canvas');
+        bC.setAttribute("width", 500);
+        bC.setAttribute("height", 500);
+        
+        var ctx,
+            bctx = bC.getContext("2d");
+        //var backBufferCtx = backBuffer.getContext("2d");
+        var color = [];
+        color["true"] = "black";
+        color["false"] = "white";
+        
+        $(document).ready(function(){
+            var c = document.getElementById("canvas");
+            ctx = c.getContext("2d");
+            //ctx.translate(0.5,0.5);
+            canvasObject.prototype.context = c.getContext("2d");
+            ctx.fillStyle = color["false"];
+            ctx.strokeStyle = color["true"];
+            
+            bctx.beginPath();
+            bctx.strokeStyle = "#222";
+            for(var x = 0; x < tileX; x++){
+                bctx.moveTo(x*10 ,0);
+                bctx.lineTo(x*10 ,tileX*10);
+                for(var y = 0; y < tileY; y++){
+                    bctx.moveTo(0,y*10);
+                    bctx.lineTo(tileY * 10,y*10);
+                }
+            }
+            bctx.stroke();
+            
+            for(var x = 0; x < tileX; x++){
+                //Tiles[x] = [];
+                for(var y = 0; y < tileY; y++){                    
+                    var tilePos = (x*tileY)+y;
+                    var Vector = new Vec2(x*10, y*10);
+                    Tiles[tilePos] = (new Tile(Vector)); 
+                    aliveTiles[tilePos] = false;
+                }
+            }
+            ctx.drawImage(bC, 0, 0);
+                            delay = parseInt($("#delay").val());
+            
+            socket = io.connect('http://76.84.167.144');
+            socket.on("Step", function(data){
+                /*_.each(data, function(e){
+                    ctx.beginPath();
+                    ctx.clearRect(e.x, e.y, 10, 10);
+                    
+                    ctx.fillStyle = color[e.alive]; 
+                    ctx.rect(e.x, e.y, 10, 10);
+                    ctx.fill();
+                });*/
+                //ctx.drawImage(bC, 0, 0);
+                $("#StepCount").text(data);
+                //fn();
+            });
+            socket.on("TileChange", function(data){
+                //console.log(data);
+                TileChanges++;
+                //console.log(TileChanges);
+                $("#TileChanges").text(TileChanges);
+                Tiles[data.tilePos].alive = data.alive;  
+            });
+            var click = false;
+            var lastPos = {tX: 0, tY: 0};
+            $("#canvas").click(function(e){
+                var coords = getMCC(c, e);
+                var tX = Math.floor(coords[0]/10);
+                var tY = Math.floor(coords[1]/10);
+                
+                //click = !click;
+                //lastPos = {tX: tX, tY: tY};
+                socket.emit("Click", {"x": tX, "y": tY});
+
+                console.info(e, coords, tX, tY);
+                /*try{
+                    var tile = Tiles[(tX * tileY)+ tY];
+                    tile.alive = !tile.alive;
+                }catch(e){
+                    console.log(e);   
+                }*/
+            });
+            $("#Rand").click(function(e){
+                var maxTile = tileX*tileY -1;
+                for(var i = 0; i <= maxTile; i++){
+                    var tilePos = chance.natural({min:0, max:maxTile});
+                    socket.emit("Set", {"tilePos":tilePos, "alive": chance.bool()});
+                }
+                /*for(var x = 0; x < tileX; x++){
+                    for(var y = 0; y <tileY; y++){
+                        var tilePos = (x*tileY)+y;
+                        socket.emit("Set", {"tilePos":tilePos, "alive": chance.bool()});
+                        //Tiles[tilePos].alive = chance.bool();    
+                    }
+                }*/
+                _.delay(function(){ctx.drawImage(bC, 0, 0);}, 200);
+            });
+            $("#Reset").click(function(e){
+                for(var x = 0; x < tileX; x++){
+                    for(var y = 0; y <tileY; y++){
+                        var tilePos = (x*tileY)+y;
+                        socket.emit("Set", {"tilePos":tilePos, "alive": false});
+                        //Tiles[tilePos].alive = chance.bool();    
+                    }
+                }
+                c.width++;
+                c.width--;
+                _.delay(function(){ctx.drawImage(bC, 0, 0);}, 200);
+            });
+            /*$("#canvas").mousemove(function(e){
+                if(!click)return true;
+                var coords = getMCC(c, e);
+                var tX = Math.floor(coords[0]/10);
+                var tY = Math.floor(coords[1]/10);
+                if(lastPos.tX != tX && lastPos.tY != tY){
+                    socket.emit("Click", {"x": tX, "y": tY});
+                    lastPos.tX = tX;
+                    lastPos.tY = tY;
+                }
+                console.log(e);
+            });*/
+            $("#start").click(toggleRun);
+            $("#stop").click(toggleRun);
+            $("#delay").change(function(e){
+                socket.emit("ChangeDelay", parseInt($("#delay").val())); 
+            });
+        });
+
+        function toggleRun(e){
+            var val = $(this).val();
+            //$(this).toggleClass("disabled");
+            if(val === "start"){
+                running = true;  
+                socket.emit("start");
+                //$("#stop").toggleClass("disabled");
+                delay = parseInt($("#delay").val());
+                //_.defer(gl);
+                 //_.defer(SimLoop);
+
+            }else{
+                socket.emit("stop");
+                running = false; 
+                //$("#start").toggleClass("disabled");
+                
+            }
+        }
+        //50-62 av 60ms
+        
+        function SimLoop(){
+            console.time("SimLoop");
+            
+            console.time("Counting Alive Tiles");
+            var aliveTiles = [];
+            _.each(Tiles, function(e, i){
+                aliveTiles[i] = e.alive;
+            });
+            console.timeEnd("Counting Alive Tiles");
+            
+            console.time("MainLoop");
+            _.each(Tiles, function(tile){
+                var numAlive = countAliveNeighbors(tile.nAddress, aliveTiles);
+                //console.time("Deciding Alive or Dead");
+                if(numAlive < 2 || numAlive > 3){
+                    tile.alive = false;
+                }else if(numAlive == 3){
+                    tile.alive = true;
+                }
+                //console.timeEnd("Deciding Alive or Dead");
+            });
+            console.timeEnd("MainLoop");
+            if(running){
+                setTimeout(SimLoop, delay);
+            }
+            
+            console.timeEnd("SimLoop");
+        }
+        //var id;
+        //function GraphicLoop(){            
+            //ctx.drawImage(backBuffer, 0,0);
+            //id = window.requestAnimationFrame(gl);
+            //++backBuffer.width;
+            //--backBuffer.width;
+            /*_.each(Tiles, function(Alive){
+                backBufferCtx.fillStyle = color[Alive];
+                _.each(Alive, function(Rows){
+                    _.each(Rows, function(Tiles){
+                        Tiles.Draw(backBufferCtx);
+                    })
+                }
+            });*/
+            //if(!running){
+                //_.defer(gl);  
+                //window.cancelAnimationFrame(id);
+            //}
+        //}
+         //var gl = _.throttle(GraphicLoop, 1000/60);
+
+
+        
+        
+canvasObject.prototype = new Vec2(0, 0);
+
+function canvasObject() {
+    var self = this;
+}
+canvasObject.prototype.Draw = function () {};
+
+cRect.prototype = new canvasObject();
+
+function cRect(position, size) {
+    var self = this;
+    self.size = size;
+    self.x = position.x;
+    self.y = position.y;
+    self.strokeStyle = "orangered";
+    self.fillStyle = "white";
+    self.lineWidth = 1;
+
+}
+cRect.prototype.Draw = function (ctx) {
+    var self = this;
+    bctx.clearRect(self.ox, self.oy, self.size.ox, self.size.oy);
+    /*ctx.strokeStyle = self.strokeStyle;
+            ctx.fillStyle = self.fillStyle;
+            ctx.lineWidth = self.lineWidth;*/
+    bctx.rect(self.x, self.y, self.size.x, self.size.y);
+    bctx.fill();
+    //console.info(self.x);
+
+}
+
+        Tile.prototype = new cRect(new Vec2(0,0), new Vec2(10,10));
+        
+        function Tile(position){
+            var self = this;
+            var alive = false;
+            //var changed = true;
+            
+            this.__defineGetter__("alive", function(){
+                return alive;
+            });
+
+            this.__defineSetter__("alive", function(val){
+                alive = val;
+                //aliveTiles[self.tilePos] = val;
+                ctx.beginPath(); bctx.clearRect(self.ox, self.oy, self.size.ox, self.size.oy);
+                ctx.fillStyle = color[val.toString()]; 
+                ctx.rect(self.x, self.y, self.size.x, self.size.y);
+                ctx.fill();
+                /*if(!val){
+                    ctx.strokeStyle = color[!val];
+                    ctx.rect(self.x, self.y, self.size.x, self.size.y);
+                    ctx.stroke();
+                }*/
+                
+            });
+            
+            self.x = position.x;
+            self.y = position.y;
+            self.tilePos = ((self.x/10)*tileY)+(self.y/10);
+
+            /*self.nAddress = [];
+            for(var x = -1; x < 2; x++){
+                var nX = self.x/10 + x;
+                if(nX >= 0 && nX< tileX){
+                    for(var y = -1; y <2; y++){
+                        var nY = self.y/10 + y;
+                        if(x == 0 && y == 0)continue;
+                        if(nY >= 0 && nY < tileY){
+                            self.nAddress.push((nX*tileY)+nY);   
+                        }
+                    }
+                }
+            }*/
+
+            
+            //ctx.beginPath();
+            //ctx.rect(self.x, self.y, self.size.x, self.size.y);
+            //ctx.fill();
+            //ctx.rect(self.x, self.y, self.size.x, self.size.y);
+            //ctx.stroke();
+            
+            /*this.Draw = function(ctx, fillColor){
+                if(changed){
+                    changed = false;
+                    cRect.prototype.Draw.call(self, ctx);
+                }
+            };*/
+            //cObjs.push(self);
+        }
+        function countAliveNeighbors(nAddrs, list){
+            var numAlive = 0;
+            _.each(nAddrs, function(e){
+                if(list[e])numAlive++;
+            });
+            return numAlive;
+        }
+    </script>
+
+</body>
+
+</html>

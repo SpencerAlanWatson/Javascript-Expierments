@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Node</title>
+</head>
+
+<body style="background-color:#eee;">
+    <!--Javascript-->
+    <script src="/js/lib/jquery.js"></script>
+    <script src="/js/lib/underscore.js"></script>
+    <script src="/js/lib/socket.io.js"></script>
+    <!--<script src="/js/lib/lz-string.js"></script>
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+        <script src="https://www.google.com/jsapi"></script>-->
+    <script>
+        //google.load('visualization', '1', {packages:['corechart']});
+            var Data;
+            var DataS;
+        var odata = [];
+        var Hex = [];
+        var socket;
+            $(document).ready(function(){
+                socket = io.connect('http://192.168.1.126');
+                socket.on("OData", function(OData){
+                    odata.push(OData);
+                    console.log(OData); 
+                });
+            });
+        
+        function toHex(str){
+            socket.emit("TurnToHex", str, function(data){
+                 Hex.push(data);
+                console.log(data);
+            });
+        }
+    </script>
+</body>
+
+</html>
